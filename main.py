@@ -7,8 +7,9 @@ from models import SourceList, ArticleList
 
 def main():
     reader = ReaderController()
-    for i in reader.article_list.article_list:
-        views.show_article(i)
+    # for i in reader.article_list.article_list:
+    #     views.show_article(i)
+    views.run_tui(reader.article_list.article_list)
 
     # articles = feedparser.parse("https://www.polsatnews.pl/rss/wszystkie.xml")
     # for article in articles.entries:

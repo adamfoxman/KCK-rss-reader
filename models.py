@@ -27,9 +27,12 @@ class ArticleList:
 
     def __init__(self, source_list):
         for source in source_list:
+            print("Fetching news from " + source)
             source = feedparser.parse(source)
             for article in source.entries:
                 new_article = Article(article.link)
+                new_article.publish_date = article.published
+                print(new_article.title)
                 self.article_list.append(new_article)
         self.article_list.sort(key=lambda x: x.publish_date, reverse=True)
 

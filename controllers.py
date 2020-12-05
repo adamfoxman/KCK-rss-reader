@@ -10,6 +10,7 @@ class ReaderController:
         with open('sources.txt') as source_file:
             source_urls = source_file.readlines()
             for url in source_urls:
+                print("Adding new source: " + url)
                 self.src.add_source(source_url=url)
 
         self.article_list = ArticleList(self.src.source_list)
