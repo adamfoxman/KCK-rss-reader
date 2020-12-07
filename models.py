@@ -1,5 +1,6 @@
 import feedparser
 from newspaper import Article as ArticleParser
+from prompt_toolkit.shortcuts import ProgressBar
 
 
 class Article:
@@ -27,13 +28,13 @@ class ArticleList:
 
     def __init__(self, source_list):
         for source in source_list:
-            print("Fetching news from " + source)
+            title = "Fetching news from " + source
             source = feedparser.parse(source)
-            for article in source.entries:
-                new_article = Article(article.link)
-                new_article.publish_date = article.published
-                print(new_article.title)
-                self.article_list.append(new_article)
+            with ProgressBar(title=title) as pb:
+                for article in pb(source.entries):
+                    new_article = Article(article.link)
+                    new_article.publish_date = article.published
+                    self.article_list.append(new_article)
         self.article_list.sort(key=lambda x: x.publish_date, reverse=True)
 
     def add_articles_from_source(self, url):

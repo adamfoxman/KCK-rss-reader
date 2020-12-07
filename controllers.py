@@ -1,5 +1,4 @@
 from models import ArticleList, SourceList
-import views
 
 
 class ReaderController:

@@ -1,49 +1,35 @@
-import urwid
-from models import ArticleList, SourceList
+import py_cui
+import textwrap
 
 
-def callback(key):
-    raise urwid.ExitMainLoop()
+class TUI:
+    def __init__(self, master, article_list, width):
+        self.master = master
+        self.article_list = article_list
+        self.width = width
+        self.main_menu = self.master.add_scroll_menu("Articles", 0, 0, row_span=8, column_span=3)
+        for i in self.article_list:
+            self.main_menu.add_item(i.title)
+        self.article_view = self.master.add_scroll_menu("", 0, 3, row_span=8, column_span=5)
+        self.main_menu.add_key_command(py_cui.keys.KEY_ENTER, self.display_article)
 
+    def display_article(self):
+        title = self.main_menu.get()
+        article_text = self.find_article(title=title)
+        self.article_view.set_title(title=title)
+        article_text = textwrap.wrap(text=article_text, width=((self.width*5)//8)-10)
+        self.article_view.clear()
+        for i in article_text:
+            self.article_view.add_item(i)
 
-def newspaper(articles):
-    widget_title = "Your newspaper"
-    body = [urwid.Text(widget_title), urwid.Divider()]
-    for article in articles:
-        button = urwid.Button(article.title)
-        # urwid.connect_signal(button, 'click', item_chosen, title)
-        body.append(urwid.AttrMap(button, None, focus_map='reversed'))
-    return urwid.ListBox(urwid.SimpleFocusListWalker(body))
-
-
-def mainmenu(title, choices):
-    body = [urwid.Text(title), urwid.Divider()]
-    body.extend(choices)
-    return urwid.ListBox(urwid.SimpleFocusListWalker(body))
-
-
-# def item_chosen(button, choice):
-#     response = urwid.Text([u'You chose ', choice, u'\n'])
-#     done = urwid.Button(u'Ok')
-#     urwid.connect_signal(done, 'click', callback)
-#     main.original_widget = urwid.Filler(urwid.Pile([response,
-#                                                     urwid.AttrMap(done, None, focus_map='reversed')]))
+    def find_article(self, title):
+        for i in self.article_list:
+            if i.title == title:
+                return i.text
 
 
 def run_tui(article_list):
-    main = urwid.Padding(newspaper('Articles from RSS feeds', article_list), align='center', width=('relative', 70))
-    topw = urwid.Overlay(main, urwid.SolidFill(' '), align='center', width=('relative', 100),
-                         valign='middle', height=('relative', 100), min_width=20, min_height=20)
-    mainloop = urwid.MainLoop(topw, palette=[('reversed', 'standout', '')])
-    mainloop.run()
-
-
-def show_titles(article_titles):
-    for i in article_titles:
-        print(i)
-
-
-def show_article(article):
-    print(article.title)
-    print(article.publish_date)
-    print(article.text)
+    root = py_cui.PyCUI(8, 8)
+    root.set_title("KCK RSS Reader")
+    s = TUI(root, article_list, width=root._width)
+    root.start()
