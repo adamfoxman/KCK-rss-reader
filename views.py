@@ -1,5 +1,40 @@
+import wx
 import py_cui
 import textwrap
+
+class GUI(wx.Frame):
+    def __init__(self, parent, title):
+        wx.Frame.__init__(self, parent=parent, title=title, size=(800, 500))
+        self.CreateStatusBar()
+        self.SetMenuBar(self.create_menu())
+
+        self.Show(True)
+
+    def create_menu(self):
+        def file_menu():
+            filemenu = wx.Menu()
+
+            about = filemenu.Append(wx.ID_ABOUT, "&About", "Information about KCK RSS Reader")
+            self.Bind(wx.EVT_MENU, on_about, about)
+            filemenu.AppendSeparator()
+            filemenu.Append(wx.ID_EXIT, "E&xit", "Exit the program")
+
+            return filemenu
+
+        def on_about(e):
+            messagetext = "Small RSS Reader made as a university project.\n\nMade by Adam Lisowski\n2021"
+
+            message = wx.MessageDialog(self, messagetext, "About", wx.OK)
+            message.ShowModal()
+            message.Destroy()
+
+        menu_bar = wx.MenuBar()
+        menu_bar.Append(file_menu(), "&Menu")
+
+        return menu_bar
+
+
+
 
 
 class TUI:
@@ -33,3 +68,8 @@ def run_tui(article_list):
     root.set_title("KCK RSS Reader")
     s = TUI(root, article_list, width=root._width)
     root.start()
+
+def run_gui(article_list):
+    app = wx.App(False)
+    frame = GUI(None, "KCK RSS Reader")
+    app.MainLoop()
