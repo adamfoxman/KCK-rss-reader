@@ -1,3 +1,4 @@
 feedparser~=6.0.2
 newspaper3k
 py_cui
+wxPython~=4.1.1

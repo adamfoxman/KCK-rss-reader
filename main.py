@@ -3,9 +3,9 @@ import views
 
 
 def main():
-    # reader = ReaderController()
+    reader = ReaderController()
     # views.run_tui(reader.article_list.article_list)
-    gui = views.run_gui(None)
+    views.run_gui(reader.article_list.article_list)
 
 if __name__ == '__main__':
     main()

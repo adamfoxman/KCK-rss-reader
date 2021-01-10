@@ -2,6 +2,7 @@ import wx
 import py_cui
 import textwrap
 
+
 class GUI(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent=parent, title=title, size=(800, 500))
@@ -10,6 +11,15 @@ class GUI(wx.Frame):
 
         self.Show(True)
 
+        topSizer = wx.BoxSizer(wx.HORIZONTAL)
+        articleListSizer = wx.BoxSizer(wx.HORIZONTAL)
+        articleSizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        articleListSizer.Add(self.create_article_list(), 0, wx.ALL)
+
+        topSizer.Add(articleListSizer, 0, wx.ALL)
+        topSizer.Add(articleSizer, 0, wx.EXPAND, 5)
+
     def create_menu(self):
         def file_menu():
             filemenu = wx.Menu()
@@ -17,7 +27,8 @@ class GUI(wx.Frame):
             about = filemenu.Append(wx.ID_ABOUT, "&About", "Information about KCK RSS Reader")
             self.Bind(wx.EVT_MENU, on_about, about)
             filemenu.AppendSeparator()
-            filemenu.Append(wx.ID_EXIT, "E&xit", "Exit the program")
+            exitbutton = filemenu.Append(wx.ID_EXIT, "E&xit", "Exit the program")
+            self.Bind(wx.EVT_MENU, on_exit, exitbutton)
 
             return filemenu
 
@@ -28,13 +39,19 @@ class GUI(wx.Frame):
             message.ShowModal()
             message.Destroy()
 
+        def on_exit(e):
+            self.Close(True)
+
         menu_bar = wx.MenuBar()
         menu_bar.Append(file_menu(), "&Menu")
 
         return menu_bar
 
+    def create_article_list(self):
+        choices = ["XD", "lol", "test", "test123"]
+        artcl_list = wx.ListBox(None, choices=choices)
 
-
+        return artcl_list
 
 
 class TUI:
