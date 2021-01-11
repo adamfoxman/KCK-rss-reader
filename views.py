@@ -1,24 +1,24 @@
 import wx
 import py_cui
 import textwrap
+import wx.lib.scrolledpanel
 
 
 class GUI(wx.Frame):
-    def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent=parent, title=title, size=(800, 500))
+    def __init__(self, parent, title, article_list):
+        self.lst = []
+        self.article_list = article_list
+        super(GUI, self).__init__(parent=parent, title=title, size=(500, 800))
         self.CreateStatusBar()
         self.SetMenuBar(self.create_menu())
 
+        for i in article_list:
+            self.lst.append(i.title)
+
+        artcl_list = wx.ListBox(self, choices=self.lst)
+        self.Bind(wx.EVT_LISTBOX_DCLICK, self.onListBox, )
+
         self.Show(True)
-
-        topSizer = wx.BoxSizer(wx.HORIZONTAL)
-        articleListSizer = wx.BoxSizer(wx.HORIZONTAL)
-        articleSizer = wx.BoxSizer(wx.HORIZONTAL)
-
-        articleListSizer.Add(self.create_article_list(), 0, wx.ALL)
-
-        topSizer.Add(articleListSizer, 0, wx.ALL)
-        topSizer.Add(articleSizer, 0, wx.EXPAND, 5)
 
     def create_menu(self):
         def file_menu():
@@ -47,13 +47,66 @@ class GUI(wx.Frame):
 
         return menu_bar
 
-    def create_article_list(self):
-        choices = ["XD", "lol", "test", "test123"]
-        artcl_list = wx.ListBox(None, choices=choices)
+    # def create_article_list(self):
+    #     for i in self.article_list:
+    #         self.lst.append(i.title)
+    #     artcl_list = wx.ListBox(self.panel, choices=self.lst)
+    #     # wx.CallAfter(self.Bind(wx.EVT_LISTBOX, self.onListBox, self.lst))
+    #     return artcl_list
+    #
+    # def create_text_box(self):
+    #     textbox = wx.StaticText(self.panel, label="test123")
+    #     textbox.GetFont().PointSize = 14
+    #     return textbox
+    #
+    # def find_article(self, title):
+    #     for i in self.article_list:
+    #         if i.title == title:
+    #             return i.text
+    #
 
-        return artcl_list
+    def get_article(self, title):
+        for i in self.article_list:
+            if i.title == title:
+                return i.title, i.text, i.publish_date, i.authors
+
+    class TextWindow(wx.Frame):
+        def __init__(self, parent, title, article_title, text, publish_date, authors):
+            super(GUI.TextWindow, self).__init__(parent=parent, title=title, size=(800, 500))
+            articleframe = wx.Frame(self, title=title)
+            # self.panel = wx.Panel(self)
+            self.panel = wx.lib.scrolledpanel.ScrolledPanel(self)
+            box = wx.BoxSizer(wx.VERTICAL)
+
+            title_bar = wx.StaticText(self.panel, style=wx.ALIGN_CENTER_HORIZONTAL, label=article_title)
+            title_bar.SetFont(wx.Font(24, wx.ROMAN, wx.NORMAL, wx.BOLD))
+            title_bar.Wrap(self.GetSize().width - 100)
+            date_bar = wx.StaticText(self.panel, style=wx.ALIGN_CENTER_HORIZONTAL, label=publish_date)
+            date_bar.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+            authors_bar = wx.StaticText(self.panel, style=wx.ALIGN_CENTER_HORIZONTAL, label=str(authors))
+            authors_bar.SetFont(wx.Font(8, wx.ROMAN, wx.ITALIC, wx.LIGHT))
+            text_box = wx.StaticText(self.panel, style=wx.SP_WRAP, label=text)
+            text_box.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+            text_box.Wrap(self.GetSize().width - 100)
+
+            box.Add(title_bar, 0, wx.ALL | wx.EXPAND)
+            box.AddSpacer(0)
+            box.Add(date_bar, 0, wx.ALL | wx.EXPAND)
+            box.AddSpacer(0)
+            box.Add(authors_bar, 0, wx.ALL | wx.EXPAND)
+            box.AddSpacer(20)
+            box.Add(text_box, 0, wx.ALL)
+            self.panel.SetSizer(box)
+            self.panel.SetupScrolling()
+
+    def onListBox(self, event):
+        title, text, publish_date, authors = self.get_article(event.GetEventObject().GetStringSelection())
+        window = self.TextWindow(self, "Article", title, text, publish_date, authors)
+        window.panel.GetSizer().Layout()
+        window.Show()
 
 
+# ----------------------------------------------------------------------------------------------------------------------
 class TUI:
     def __init__(self, master, article_list, width):
         self.master = master
@@ -69,7 +122,7 @@ class TUI:
         title = self.main_menu.get()
         article_text = self.find_article(title=title)
         self.article_view.set_title(title=title)
-        article_text = textwrap.wrap(text=article_text, width=((self.width*5)//8)-10)
+        article_text = textwrap.wrap(text=article_text, width=((self.width * 5) // 8) - 10)
         self.article_view.clear()
         for i in article_text:
             self.article_view.add_item(i)
@@ -86,7 +139,8 @@ def run_tui(article_list):
     s = TUI(root, article_list, width=root._width)
     root.start()
 
+
 def run_gui(article_list):
     app = wx.App(False)
-    frame = GUI(None, "KCK RSS Reader")
+    frame = GUI(None, "KCK RSS Reader", article_list)
     app.MainLoop()
