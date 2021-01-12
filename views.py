@@ -4,10 +4,68 @@ import textwrap
 import wx.lib.scrolledpanel
 
 
+class Fonts():
+    def __init__(self):
+        with open("settings.txt") as settings_file:
+            settings = settings_file.readlines()
+            self.font = self.get_font_from_file(settings[0])
+            self.title_size, self.date_size, self.authors_size, self.text_size = self.get_size_from_file(settings[1])
+
+    def get_font_from_file(self, settings):
+        with int(settings) as font:
+            if font == 0:
+                return wx.NORMAL
+            elif font == 1:
+                return wx.DECORATIVE
+            elif font == 2:
+                return wx.ROMAN
+            elif font == 3:
+                return wx.SCRIPT
+            elif font == 4:
+                return wx.SWISS
+            elif font == 5:
+                return wx.MODERN
+            else:
+                return wx.NORMAL
+
+    def get_size_from_file(self, size):
+        with int(size) as size:
+            return size + 14, size - 2, size - 2, size
+
+    def set_font(self, font):
+        self.font = font
+        with open("settings.txt") as settings_file:
+            if font == wx.NORMAL:
+                settings_file.writelines("0")
+            elif font == wx.DECORATIVE:
+                settings_file.writelines("1")
+            elif font == wx.ROMAN:
+                settings_file.writelines("2")
+            elif font == wx.SCRIPT:
+                settings_file.writelines("3")
+            elif font == wx.SWISS:
+                settings_file.writelines("4")
+            elif font == wx.MODERN:
+                settings_file.writelines("5")
+            else:
+                settings_file.writelines("0")
+
+
+    def set_size(self, size):
+        self.title_size = size + 14
+        self.date_size = size - 2
+        self.authors_size = size - 2
+        self.text_size = size
+        with open("settings.txt") as settings_file:
+            settings_file.readline()
+            settings_file.writelines(str(size))
+
+
 class GUI(wx.Frame):
     def __init__(self, parent, title, article_list):
         self.lst = []
         self.article_list = article_list
+        self.fonts = Fonts()
         super(GUI, self).__init__(parent=parent, title=title, size=(500, 800))
         self.CreateStatusBar()
         self.SetMenuBar(self.create_menu())
@@ -32,6 +90,54 @@ class GUI(wx.Frame):
 
             return filemenu
 
+        def font_menu():
+            fontmenu = wx.Menu()
+            normal = fontmenu.AppendRadioItem(-1, "Normal")
+            self.Bind(wx.EVT_MENU, on_font_change, normal)
+            decorative = fontmenu.AppendRadioItem(-1, "Decorative")
+            self.Bind(wx.EVT_MENU, on_font_change, decorative)
+            roman = fontmenu.AppendRadioItem(-1, "Roman")
+            self.Bind(wx.EVT_MENU, on_font_change, roman)
+            script = fontmenu.AppendRadioItem(-1, "Script")
+            self.Bind(wx.EVT_MENU, on_font_change, script)
+            swiss = fontmenu.AppendRadioItem(-1, "Swiss")
+            self.Bind(wx.EVT_MENU, on_font_change, swiss)
+            funky = fontmenu.AppendRadioItem(-1, "Funky")
+            self.Bind(wx.EVT_MENU, on_font_change, funky)
+            fontmenu.AppendSeparator()
+            small = fontmenu.AppendRadioItem(-1, "Small")
+            self.Bind(wx.EVT_MENU, on_size_changed, small)
+            medium = fontmenu.AppendRadioItem(-1, "Medium")
+            self.Bind(wx.EVT_MENU, on_size_changed, medium)
+            big = fontmenu.AppendRadioItem(-1, "Big")
+            self.Bind(wx.EVT_MENU, on_size_changed, big)
+
+            return fontmenu
+
+        def on_font_change(event):
+            fontclicked = event.GetEventObject().GetValue()
+            if fontclicked == "Normal":
+                self.fonts.set_font(wx.NORMAL)
+            elif fontclicked == "Decorative":
+                self.fonts.set_font(wx.DECORATIVE)
+            elif fontclicked == "Roman":
+                self.fonts.set_font(wx.ROMAN)
+            elif fontclicked == "Script":
+                self.fonts.set_font(wx.SCRIPT)
+            elif fontclicked == "Swiss":
+                self.fonts.set_font(wx.SWISS)
+            elif fontclicked == "Funky":
+                self.fonts.set_font(wx.MODERN)
+
+        def on_size_changed(event):
+            sizeclicked = event.GetEventObject().GetValue()
+            if sizeclicked == "Small":
+                self.fonts.set_size(6)
+            elif sizeclicked == "Medium":
+                self.fonts.set_size(10)
+            elif sizeclicked == "Big":
+                self.fonts.set_size(14)
+
         def on_about(e):
             messagetext = "Small RSS Reader made as a university project.\n\nMade by Adam Lisowski\n2021"
 
@@ -44,6 +150,7 @@ class GUI(wx.Frame):
 
         menu_bar = wx.MenuBar()
         menu_bar.Append(file_menu(), "&Menu")
+        menu_bar.Append(font_menu(), "&Font")
 
         return menu_bar
 
