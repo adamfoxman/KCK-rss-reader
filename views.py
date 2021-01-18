@@ -1,8 +1,9 @@
+from functools import partial
+
 import wx
 import py_cui
 import textwrap
 import wx.lib.scrolledpanel
-
 
 
 class Fonts:
@@ -11,6 +12,7 @@ class Fonts:
     date_size = 8
     authors_size = 8
     text_size = 10
+
     def __init__(self):
         with open("settings.txt") as settings_file:
             settings = settings_file.readlines()
@@ -38,7 +40,7 @@ class Fonts:
         size = int(size)
         return size + 14, size - 2, size - 2, size
 
-    def set_font(self, font):
+    def set_font_to_file(self, font):
         self.font = font
         with open("settings.txt") as settings_file:
             if font == wx.NORMAL:
@@ -56,6 +58,9 @@ class Fonts:
             else:
                 settings_file.writelines("0")
 
+    def set_font(self, font):
+        self.font = font
+
     def set_size(self, size):
         self.title_size = size + 14
         self.date_size = size - 2
@@ -66,9 +71,6 @@ class Fonts:
             settings_file.writelines(str(size))
 
 
-fonts = Fonts()
-
-
 class GUI(wx.Frame):
     def __init__(self, parent, title, article_list):
         self.lst = []
@@ -76,12 +78,13 @@ class GUI(wx.Frame):
         super(GUI, self).__init__(parent=parent, title=title, size=(500, 800))
         self.CreateStatusBar()
         self.SetMenuBar(self.create_menu())
+        self.fonts = Fonts()
 
         for i in article_list:
             self.lst.append(i.title)
 
         artcl_list = wx.ListBox(self, choices=self.lst)
-        self.Bind(wx.EVT_LISTBOX_DCLICK, self.onListBox, )
+        self.Bind(wx.EVT_LISTBOX_DCLICK, self.onListBox, artcl_list)
 
         self.Show(True)
 
@@ -102,23 +105,38 @@ class GUI(wx.Frame):
             normal = wx.MenuItem(fontmenu, 0, "Normal", "Normal system font", wx.ITEM_RADIO)
             decorative = wx.MenuItem(fontmenu, 1, "Decorative", "Decorative font", wx.ITEM_RADIO)
             roman = wx.MenuItem(fontmenu, 2, "Roman", "Roman font", wx.ITEM_RADIO)
-            script = wx.MenuItem(fontmenu, 3, "Script", "Script font", wx.ITEM_RADIO)
+            script = wx.MenuItem(fontmenu, 3, "Funky", "Funky, Comic Sans-like font", wx.ITEM_RADIO)
             swiss = wx.MenuItem(fontmenu, 4, "Swiss", "Swiss font", wx.ITEM_RADIO)
-            funky = wx.MenuItem(fontmenu, 5, "Funky", "Funky font", wx.ITEM_RADIO)
+            funky = wx.MenuItem(fontmenu, 5, "Script", "Monospace font", wx.ITEM_RADIO)
 
-            fontmenu.AppendItem(normal)
-            fontmenu.AppendItem(decorative)
-            fontmenu.AppendItem(roman)
-            fontmenu.AppendItem(script)
-            fontmenu.AppendItem(swiss)
-            fontmenu.AppendItem(funky)
+            fontmenu.Append(normal)
+            fontmenu.Append(decorative)
+            fontmenu.Append(roman)
+            fontmenu.Append(script)
+            fontmenu.Append(swiss)
+            fontmenu.Append(funky)
 
-            self.Bind(wx.EVT_MENU, on_font_change, normal)
-            self.Bind(wx.EVT_MENU, on_font_change, decorative)
-            self.Bind(wx.EVT_MENU, on_font_change, roman)
-            self.Bind(wx.EVT_MENU, on_font_change, script)
-            self.Bind(wx.EVT_MENU, on_font_change, swiss)
-            self.Bind(wx.EVT_MENU, on_font_change, funky)
+            def on_font_change(number, event):
+                fontclicked = event.GetEventObject()
+                if number == 0:
+                    self.fonts.set_font(wx.NORMAL)
+                elif number == 1:
+                    self.fonts.set_font(wx.DECORATIVE)
+                elif number == 2:
+                    self.fonts.set_font(wx.ROMAN)
+                elif number == 3:
+                    self.fonts.set_font(wx.SCRIPT)
+                elif number == 4:
+                    self.fonts.set_font(wx.SWISS)
+                elif number == 5:
+                    self.fonts.set_font(wx.MODERN)
+
+            self.Bind(wx.EVT_MENU, partial(on_font_change, 0), normal)
+            self.Bind(wx.EVT_MENU, partial(on_font_change, 1), decorative)
+            self.Bind(wx.EVT_MENU, partial(on_font_change, 2), roman)
+            self.Bind(wx.EVT_MENU, partial(on_font_change, 3), script)
+            self.Bind(wx.EVT_MENU, partial(on_font_change, 4), swiss)
+            self.Bind(wx.EVT_MENU, partial(on_font_change, 5), funky)
 
             fontmenu.AppendSeparator()
 
@@ -126,39 +144,24 @@ class GUI(wx.Frame):
             medium = wx.MenuItem(fontmenu, 8, "Medium", "Change font to normal size", wx.ITEM_RADIO)
             big = wx.MenuItem(fontmenu, 9, "Big", "Change font to big", wx.ITEM_RADIO)
 
-            fontmenu.AppendItem(small)
-            fontmenu.AppendItem(medium)
-            fontmenu.AppendItem(big)
+            def on_size_changed(number, event):
+                sizeclicked = event.GetEventObject()
+                if number == 7:
+                    self.fonts.set_size(6)
+                elif number == 8:
+                    self.fonts.set_size(10)
+                elif number == 9:
+                    self.fonts.set_size(14)
 
-            self.Bind(wx.EVT_MENU, on_size_changed, small)
-            self.Bind(wx.EVT_MENU, on_size_changed, medium)
-            self.Bind(wx.EVT_MENU, on_size_changed, big)
+            fontmenu.Append(small)
+            fontmenu.Append(medium)
+            fontmenu.Append(big)
+
+            self.Bind(wx.EVT_MENU, partial(on_size_changed, 7), small)
+            self.Bind(wx.EVT_MENU, partial(on_size_changed, 8), medium)
+            self.Bind(wx.EVT_MENU, partial(on_size_changed, 9), big)
 
             return fontmenu
-
-        def on_font_change(event):
-            fontclicked = event.GetEventObject().GetItemLabelText()
-            if fontclicked == "Normal":
-                fonts.set_font(wx.NORMAL)
-            elif fontclicked == "Decorative":
-                fonts.set_font(wx.DECORATIVE)
-            elif fontclicked == "Roman":
-                fonts.set_font(wx.ROMAN)
-            elif fontclicked == "Script":
-                fonts.set_font(wx.SCRIPT)
-            elif fontclicked == "Swiss":
-                fonts.set_font(wx.SWISS)
-            elif fontclicked == "Funky":
-                fonts.set_font(wx.MODERN)
-
-        def on_size_changed(event):
-            sizeclicked = event.GetEventObject().GetItemLabelText()
-            if sizeclicked == "Small":
-                fonts.set_size(6)
-            elif sizeclicked == "Medium":
-                fonts.set_size(10)
-            elif sizeclicked == "Big":
-                fonts.set_size(14)
 
         def on_about(e):
             messagetext = "Small RSS Reader made as a university project.\n\nMade by Adam Lisowski\n2021"
@@ -176,31 +179,13 @@ class GUI(wx.Frame):
 
         return menu_bar
 
-    # def create_article_list(self):
-    #     for i in self.article_list:
-    #         self.lst.append(i.title)
-    #     artcl_list = wx.ListBox(self.panel, choices=self.lst)
-    #     # wx.CallAfter(self.Bind(wx.EVT_LISTBOX, self.onListBox, self.lst))
-    #     return artcl_list
-    #
-    # def create_text_box(self):
-    #     textbox = wx.StaticText(self.panel, label="test123")
-    #     textbox.GetFont().PointSize = 14
-    #     return textbox
-    #
-    # def find_article(self, title):
-    #     for i in self.article_list:
-    #         if i.title == title:
-    #             return i.text
-    #
-
     def get_article(self, title):
         for i in self.article_list:
             if i.title == title:
                 return i.title, i.text, i.publish_date, i.authors
 
     class TextWindow(wx.Frame):
-        def __init__(self, parent, title, article_title, text, publish_date, authors):
+        def __init__(self, parent, title, article_title, text, publish_date, authors, fonts):
             super(GUI.TextWindow, self).__init__(parent=parent, title=title, size=(800, 500))
             articleframe = wx.Frame(self, title=title)
             # self.panel = wx.Panel(self)
@@ -231,7 +216,7 @@ class GUI(wx.Frame):
 
     def onListBox(self, event):
         title, text, publish_date, authors = self.get_article(event.GetEventObject().GetStringSelection())
-        window = self.TextWindow(self, "Article", title, text, publish_date, authors)
+        window = self.TextWindow(self, "Article", title, text, publish_date, authors, self.fonts)
         window.panel.GetSizer().Layout()
         window.Show()
 

@@ -1,4 +1,4 @@
-# KCK RSS Reader
+# KCK RSS Reader - GUI
 
 <div style="text-align: center;">Czytnik źródeł RSS</div>
 
@@ -14,14 +14,15 @@ Aplikacja "KCK RSS Reader" jest prostą aplikacją służącą do przeglądania 
 - Lista wiadomości
 - Wyświetlanie tekstu wiadomości bez reklam
 - Sortowanie wiadomości z różnych źródeł według daty
+- Możliwość wyboru czcionki i rozmiaru tekstu zgodnie z preferencjami użytkownika
 
 ## Instrukcja instalacji
 
 Aby zainstalować program, należy najpierw zainstalować wymagane biblioteki:
 
 ```shell script
-pip install py-cui feedparser newspaper3k #lub
-pip3 install py-cui feedparser newspaper3k
+pip install py-cui wx #lub
+pip3 install py-cui wx
 ```
 
 Następnie należy go uruchomić w katalogu komendą:
@@ -39,21 +40,19 @@ W pliku `sources.txt` znajdują się źródła RSS. W każdej linii znajduje si�
 
 Po uruchomieniu programu wczytywana jest lista źródeł artykułów i z każdego są wczytywane artykuły. Są one następnie sortowane według daty publikacji.
 
-Po wczytaniu wiadomości uruchomiony zostaje interfejs tekstowy z dwoma kolumnami. W lewej kolumnie znajduje się lista tytułów wczytanych artykułów, a po prawej - pusta przestrzeń na wybrany artykuł.
+Po wczytaniu wiadomości uruchomiony zostaje interfejs graficzny z jedną kolumną. Zawiera ona listę wczytanych wiadomości, posortowanych zgodnie z datą ich publikacji. Po liście nawigować można przy pomocy rolki myszki lub klawiszy góra/dół na klawiaturze.
 
-Aby wybrać artykuł, należy najpierw wejść w tryb wyboru artykułu wciskając `Enter`. Artykuł można wybrać strzałkami góra/dół lub klikając myszką. Aby otworzyć artykuł, należy ponownie wcisnąć `Enter`. Artykuł pojawi się wtedy w prawym panelu.
+W oknie głównym aplikacji, w menu "Fonts" można wybrać czcionkę i jej rozmiar wyświetlania w oknie artykułu. Po rozwinięciu tego menu uzyskujemy dostęp do 6 różnych czcionek i 3 dostępnych wielkości. Zmiana odbywa się poprzez kliknięcie wybranej opcji.
 
-Jeżeli artykuł nie mieści się na ekranie, można go przewijać przechodząc do trybu czytania artykułu - najpierw należy wyjść z listy artykułów klawiszem `Esc`, wybrać strzałkami lub myszką artykuł i wcisnąć `Enter`. Przewijanie odbywa się klawiszami góra/dół. Podobnie wygląda wychodzenie z trybu czytania artykułu i przejście do trybu wyboru artykułu.
+Aby wybrać artykuł, należy kliknąć dwukrotnie lewym przyciskiem myszy na danym tytule lub też wcisnąć klawisz Enter na klawiaturze.. Ukaże się wtedy osobne okienko z artykułem. Jeżeli artykuł nie mieści się na ekranie, można go przewijać używając do tego rolki myszy lub klawiszy góra/dół na klawiaturze.
 
-Zamknięcie programu odbywa się klawiszem `q`.
-
-Instrukcja użytkowania programu znajduje się zawsze na dole okna - widać tam możliwe akcje do wykonania.
+Zamknięcie programu odbywa się poprzez zamknięcie głównego okna z listą przy użyciu albo systemowej ikonki X w rogu ekranu, lub poprzed wybór opcji `Exit` w menu aplikacji dostępnym w lewym górnym rogu. W tymże menu można również zobaczyć krótki opis programu. 
 
 ## Wnioski
 
-Stworzenie interfejsu tekstowego przy użyciu odpowiednich bibliotek nie jest zadaniem trudnym ani wymagającym w języku Python. Świadczyć może za tym fakt, że cały kod programu włącznie z wyświetlaniem całego interfejsu i wczytywaniem artykułów zajmuje ok. 130 linii. 
+Stworzenie interfejsu graficznego przy użyciu odpowiednich bibliotek nie jest zadaniem trudnym w języku Python, chociaż w porównaniu do wcześniej stworzonego interfejsu tekstowego jest on trudniejszy do wykonania, zaprojektowania i wymaga większego nakładu pracy
 
-Python pozwala na bardzo łatwe tworzenie aplikacji z interfejsem tekstowym dzięki obecności różnych bibliotek - od przeniesionego prosto z C `curses` poprzez typowo pythonową bibliotekę `urwid` poprzez `npyscreen` czy użyty w projekcie `py_cli`. Stopień abstrakcji każdej z podanych bibliotek jest różny - niskopoziomowe `curses` czy `urwid` pozwalają na większą swobodę przy tworzeniu interfejsów, podczas gdy inne biblioteki bazują na gotowych elementach i pozwalają na bardzo szybkie stworzenie sprawnie działającego interfejsu tekstowego. 
+Python pozwala na bardzo łatwe tworzenie aplikacji z interfejsem graficznym dzięki obecności różnych bibliotek - od bardzo rozbudowanego Qt, poprzez natywnie wspierany Tkinter, użyty w projekcie WxPython (który jest wrapperem na WxWidgets), PySimpleGUI, Kivy, PySide2 (pochodna Qt), PyGUI, PyForms czy Libavg. Możliwości każdej z bibliotek są bardzo duże i każdy programista mógłby wybrać co mu bardziej odpowiada. Co więcej, duża część z nich (jak Qt, WxPython czy Kivy) pozwalają na pisanie multiplatformowych interfejsów graficznych z użyciem tego samego kodu na inne systemy operacyjne.
 
 ## Samoocena
 
